@@ -18,7 +18,7 @@ public class PostRepository
 
     public static IEnumerable<dynamic> GetPublishedPosts()
     {
-        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName, u.Username FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.id = m.TagId INNER JOIN Users u ON u.Id = p.AuthorId WHERE DatePublished IS NOT NULL AND DatePublished < getDate()";
+        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName, u.Username as Username FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.Id = m.TagId INNER JOIN Users u ON u.Id = p.AuthorId WHERE DatePublished IS NOT NULL AND DatePublished < getDate()";
 
         return DoGet(sql);       
         
