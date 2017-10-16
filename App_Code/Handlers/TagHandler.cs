@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.SessionState;
 using WebMatrix.Data;
 
@@ -25,6 +26,8 @@ public class TagHandler : IHttpHandler, IReadOnlySessionState
 
     public void ProcessRequest(HttpContext context)
     {
+        AntiForgery.Validate();
+
         if (!WebUser.IsAuthenticated)
         {
             throw new HttpException(401, "You must login to do this");

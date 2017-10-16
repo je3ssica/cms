@@ -21,6 +21,7 @@
 
 <div>
     <form action="~/admin/account.ashx" method="post" name="account">
+        @AntiForgery.GetHtml()
         <input type="hidden" name="mode" value="@mode" />
         <input type="hidden" name="accountId" value="@account.Id" />
 

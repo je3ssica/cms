@@ -19,6 +19,8 @@ public class AccountHandler : IHttpHandler, IReadOnlySessionState
 
     public void ProcessRequest(HttpContext context)
     {
+        AntiForgery.Validate();
+
         if(!WebUser.IsAuthenticated)
         {
             throw new HttpException(401, "You must login to do this");

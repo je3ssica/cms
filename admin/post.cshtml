@@ -25,6 +25,8 @@
     var postTags = (IEnumerable<dynamic>)post.Tags;
 <div>
     <form action="~/admin/post.ashx" method="post" name="post">
+        @AntiForgery.GetHtml()
+
         <input type="hidden" name="mode" value="@mode" />
         <input type="hidden" name="postId" value="@post.Id" />
         <input type="hidden" name="postAuthorId" value="@post.AuthorId" />

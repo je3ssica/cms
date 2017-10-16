@@ -17,6 +17,8 @@
     
 <div>
     <form action="~/admin/role.ashx" method="post" name="role">
+        @AntiForgery.GetHtml();
+
         <input type="hidden" name="mode" value="@mode" />
         <input type="hidden" name="roleId" value="@role.Id" />
         <p>Name: <input type="text" name="roleName" value="@role.Name"/></p>
