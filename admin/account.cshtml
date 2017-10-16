@@ -3,7 +3,12 @@
     Layout = "~/admin/_AdminLayout.cshtml";
 
     var mode = Post.Mode;
-    
+
+    if(!WebUser.HasRole(UserRoles.Admin))
+    {
+        Response.Redirect("~/admin");
+    }
+
 
     }
 

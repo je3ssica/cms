@@ -3,7 +3,18 @@
     Layout = "~/admin/_AdminLayout.cshtml";
 
     var mode = Post.Mode;
-    
+
+    if (!WebUser.HasRole(UserRoles.Admin) && !WebUser.HasRole(UserRoles.Editor) && !WebUser.HasRole(UserRoles.Author))
+    {
+        Response.Redirect("~/admin");
+    }
+    if((mode == "edit" || mode == "delete") && WebUser.HasRole(UserRoles.Author))
+    {
+        if(WebUser.UserId != Post.Current.AuthorId)
+        {
+            Response.Redirect("~/admin/post/");
+        }
+    }
 
     }
 
@@ -16,6 +27,8 @@
     <form action="~/admin/post.ashx" method="post" name="post">
         <input type="hidden" name="mode" value="@mode" />
         <input type="hidden" name="postId" value="@post.Id" />
+        <input type="hidden" name="postAuthorId" value="@post.AuthorId" />
+
 
         <p>Title: <input type="text" name="postTitle" value="@post.Title"/></p>
         <p>Content: <textarea name="postContent">@post.Content</textarea></p>

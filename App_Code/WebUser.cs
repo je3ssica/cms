@@ -16,6 +16,18 @@ public class WebUser
         get { return HttpContext.Current.Session;  }
     }
 
+    public static bool HasRole(string roleName)
+    {
+        var roles = GetRolesForUser();
+        return roles.Contains(roleName);
+    }
+
+    //Hämtar roll för aktuell användare
+    public static IEnumerable<string> GetRolesForUser()
+    {
+        return GetRolesForUser(WebUser.UserId);
+    }
+
     public static IEnumerable<string>  GetRolesForUser(int id)
     {
         return RoleRepository.GetRolesForUser(id).Select(r => (string)r.Name);

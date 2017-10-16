@@ -3,6 +3,11 @@
     Layout = "~/admin/_AdminLayout.cshtml";
 
     var mode = Tag.Mode;
+
+    if (!WebUser.HasRole(UserRoles.Admin) && !WebUser.HasRole(UserRoles.Editor))
+    {
+        Response.Redirect("~/admin");
+    }
 }
 
 @if (!mode.IsEmpty())

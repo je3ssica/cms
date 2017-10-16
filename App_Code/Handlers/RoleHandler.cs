@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.SessionState;
 using WebMatrix.Data;
 
 /// <summary>
 /// Summary description for RoleHandler
 /// </summary>
-public class RoleHandler : IHttpHandler
+public class RoleHandler : IHttpHandler, IReadOnlySessionState
 {
     public RoleHandler()
     {
@@ -24,6 +25,17 @@ public class RoleHandler : IHttpHandler
 
     public void ProcessRequest(HttpContext context)
     {
+
+        if (!WebUser.IsAuthenticated)
+        {
+            throw new HttpException(401, "You must login to do this");
+        }
+
+        if (!WebUser.HasRole(UserRoles.Admin))
+        {
+            throw new HttpException(401, "You do not have permission to do this");
+        }
+
         var mode = context.Request.Form["mode"];
         var name = context.Request.Form["roleName"];
         var id = context.Request.Form["roleId"];

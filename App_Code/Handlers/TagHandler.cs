@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.SessionState;
 using WebMatrix.Data;
 
 /// <summary>
 /// Summary description for PostHandler
 /// </summary>
-public class TagHandler : IHttpHandler
+public class TagHandler : IHttpHandler, IReadOnlySessionState
 {
     public TagHandler()
     {
@@ -24,6 +25,15 @@ public class TagHandler : IHttpHandler
 
     public void ProcessRequest(HttpContext context)
     {
+        if (!WebUser.IsAuthenticated)
+        {
+            throw new HttpException(401, "You must login to do this");
+        }
+        if (!WebUser.HasRole(UserRoles.Admin) && !WebUser.HasRole(UserRoles.Editor))
+        {
+            throw new HttpException(401, "You do not have permission to do that");
+        }
+
         var mode = context.Request.Form["mode"];
         var name = context.Request.Form["tagName"];
         var friendlyName = context.Request.Form["tagFriendlyName"];

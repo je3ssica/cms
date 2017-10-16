@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.SessionState;
 using WebMatrix.Data;
 
 /// <summary>
 /// Summary description for PostHandler
 /// </summary>
-public class PostHandler : IHttpHandler
+public class PostHandler : IHttpHandler, IReadOnlySessionState
 {
     public PostHandler()
     {
@@ -24,6 +25,16 @@ public class PostHandler : IHttpHandler
 
     public void ProcessRequest(HttpContext context)
     {
+        if (!WebUser.IsAuthenticated)
+        {
+            throw new HttpException(401, "You must login to do this");
+        }
+        if (!WebUser.HasRole(UserRoles.Admin) && !WebUser.HasRole(UserRoles.Editor) && !WebUser.HasRole(UserRoles.Author))
+        {
+            throw new HttpException(401, "You do not have permission to do that");
+        }
+
+
         var mode = context.Request.Form["mode"];
         var title = context.Request.Form["postTitle"];
         var content = context.Request.Form["postContent"];
@@ -31,20 +42,28 @@ public class PostHandler : IHttpHandler
         var id = context.Request.Form["postId"];
         var datePublished = context.Request.Form["postDatePublished"];
         var postTags = context.Request.Form["postTags"];
+        var authorId = context.Request.Form["postAuthorId"];
         var tags = postTags.Split(',').Select(v => Convert.ToInt32(v));
 
-        if(string.IsNullOrWhiteSpace(slug))
+        if ((mode == "edit" || mode == "delete") && WebUser.HasRole(UserRoles.Author))
+        {
+            if (WebUser.UserId != Convert.ToInt32(authorId))
+            {
+                throw new HttpException(401, "You do not have permission to do that");
+            }
+            if (string.IsNullOrWhiteSpace(slug))
         {
             slug = CreateSlug(title);
         }
+        }
         if (mode == "edit")
         {
-            EditPost(Convert.ToInt32(id), title, content, slug, datePublished, 1, tags);
+            EditPost(Convert.ToInt32(id), title, content, slug, datePublished, Convert.ToInt32(authorId), tags);
 
         }
         else if (mode == "new")
         {
-            CreatePost(title, content, slug, datePublished, 1, tags);
+            CreatePost(title, content, slug, datePublished, WebUser.UserId, tags);
         }
 
         else if (mode == "delete")
