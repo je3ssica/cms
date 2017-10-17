@@ -51,7 +51,7 @@
 else
 {
     var grid = new WebGrid(
-        source: PostRepository.GetAll(orderBy: "DateCreated DESC"),
+        source: PostRepository.GetPublishedPosts(),
         rowsPerPage: 30);
 
 

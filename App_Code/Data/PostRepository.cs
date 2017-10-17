@@ -16,24 +16,34 @@ public class PostRepository
         
     }
 
-    public static IEnumerable<dynamic> GetPublishedPosts()
+    public static IEnumerable<dynamic> GetPublishedPosts(int count = 0)
     {
-        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName, u.Username as Username FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.Id = m.TagId INNER JOIN Users u ON u.Id = p.AuthorId WHERE DatePublished IS NOT NULL AND DatePublished < getDate()";
+        var topClause = count > 0 ? string.Format(" TOP {0} ", count) : string.Empty;
+
+        var sql = string.Format("SELECT {0} p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName, u.Username as Username FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.Id = m.TagId INNER JOIN Users u ON u.Id = p.AuthorId WHERE DatePublished IS NOT NULL AND DatePublished <= getDate() ORDER BY DatePublished DESC", topClause);
 
         return DoGet(sql);       
         
     }
 
+    public static IEnumerable<dynamic> GetPublishedPostsByTag(string tagName)
+    {
+        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName, u.Username as Username FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.Id = m.TagId INNER JOIN Users u ON u.Id = p.AuthorId WHERE DatePublished IS NOT NULL AND DatePublished <= getDate() AND t.UrlFriendlyName =@0 ORDER BY DatePublished DESC";
+
+        return DoGet(sql, tagName);
+
+    }
+
     public static dynamic Get(int id)
     {
-        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.id = m.TagId WHERE p.Id = @0";
+        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName, u.Username as Username FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.id = m.TagId INNER JOIN Users u ON u.Id = p.AuthorId WHERE p.Id = @0";
 
         var results = DoGet(sql, id);
         return results.Any() ? results.First() : null;
     }
     public static dynamic Get(string slug)
     {
-        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.id = m.TagId WHERE Slug = @0";
+        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName, u.Username as Username FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.id = m.TagId INNER JOIN Users u ON u.Id = p.AuthorId WHERE Slug = @0";
 
         var results = DoGet(sql, slug);
         return results.Any() ? results.First() : null;
@@ -41,7 +51,7 @@ public class PostRepository
 
     public static IEnumerable<dynamic> GetAll(string orderBy = null)
     {
-        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.id = m.TagId";
+        var sql = "SELECT p.*, t.Id as TagId, t.Name as TagName, t.UrlFriendlyName as TagUrlFriendlyName, u.Username as Username FROM Posts p LEFT JOIN PostsTagsMap m ON p.Id = m.PostId LEFT JOIN Tags t ON t.id = m.TagId INNER JOIN Users u ON u.Id = p.AuthorId";
         if (!string.IsNullOrEmpty(orderBy))
         {
             sql += " ORDER BY " + orderBy;

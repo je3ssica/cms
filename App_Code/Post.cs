@@ -32,7 +32,8 @@ public class Post
         {
             if (Page.UrlData.Any())
             {
-                return Page.UrlData[0].ToLower();
+                var url = Page.UrlData[0].ToLower();
+                return url;  
             }
             return string.Empty;
         }
