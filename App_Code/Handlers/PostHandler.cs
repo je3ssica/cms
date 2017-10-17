@@ -46,9 +46,30 @@ public class PostHandler : IHttpHandler, IReadOnlySessionState
         var datePublished = context.Request.Form["postDatePublished"];
         var postTags = context.Request.Form["postTags"];
         var authorId = context.Request.Form["postAuthorId"];
+        var resourceItem = context.Request.Form["resourceItem"];
         IEnumerable<int> tags = new int[] { };
 
-        if(!string.IsNullOrEmpty(postTags))
+        if (mode == "delete")
+        {
+            DeletePost(slug ?? resourceItem);
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                slug = CreateSlug(title);
+            }
+            if (mode == "edit")
+            {
+                EditPost(Convert.ToInt32(id), title, content, slug, datePublished, Convert.ToInt32(authorId), tags);
+            }
+            else if (mode == "new")
+            {
+                CreatePost(title, content, slug, datePublished, WebUser.UserId, tags);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(postTags))
         {
             tags = postTags.Split(',').Select(v => Convert.ToInt32(v));
         }
@@ -59,27 +80,13 @@ public class PostHandler : IHttpHandler, IReadOnlySessionState
             {
                 throw new HttpException(401, "You do not have permission to do that");
             }
-            if (string.IsNullOrWhiteSpace(slug))
-        {
-            slug = CreateSlug(title);
-        }
-        }
-        if (mode == "edit")
-        {
-            EditPost(Convert.ToInt32(id), title, content, slug, datePublished, Convert.ToInt32(authorId), tags);
-
-        }
-        else if (mode == "new")
-        {
-            CreatePost(title, content, slug, datePublished, WebUser.UserId, tags);
+      
         }
 
-        else if (mode == "delete")
+        if (string.IsNullOrEmpty(resourceItem))
         {
-            DeletePost(slug);
+            context.Response.Redirect("~/admin/post");
         }
-
-        context.Response.Redirect("~/admin/post");
     }
 
     private static void CreatePost(string title, string content, string slug, string datePublished, int authorId, IEnumerable<int> tags)

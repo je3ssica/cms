@@ -38,12 +38,19 @@ public class AccountHandler : IHttpHandler, IReadOnlySessionState
         var id = context.Request.Form["accountId"];
         var email = context.Request.Form["accountEmail"];
         var userRoles = context.Request.Form["accountRoles"];
-        var roles = userRoles.Split(',').Select(v => Convert.ToInt32(v));
+        var resourceItem = context.Request.Form["resourceItem"];
+        IEnumerable<int> roles = new int[] { };
 
-       if (mode == "delete")
-       {
-            Delete(username);
-       }
+        if(!string.IsNullOrEmpty(userRoles))
+        {
+            roles = userRoles.Split(',').Select(v => Convert.ToInt32(v));
+        }
+
+
+        if (mode == "delete")
+        {
+            Delete(username ?? resourceItem);
+        }
         else
         {
             if(password1 != password2)
@@ -68,8 +75,10 @@ public class AccountHandler : IHttpHandler, IReadOnlySessionState
             }
         }
 
-
-        context.Response.Redirect("~/admin/account");
+        if(string.IsNullOrEmpty(resourceItem))
+        {
+            context.Response.Redirect("~/admin/account");
+        }
     }
 
     private static void Create(string username, string password, string email, IEnumerable<int> roles)
@@ -106,7 +115,7 @@ public class AccountHandler : IHttpHandler, IReadOnlySessionState
 
     private static void Delete(string username)
     {
-        PostRepository.Remove(username);
+        AccountRepository.Remove(username);
     }
 
     private static string CreateSlug(string title)

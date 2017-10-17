@@ -30,6 +30,8 @@
 }
 else
 {
+    @AntiForgery.GetHtml()
+
     <p><a href="~/admin/role/new/">Create New Role</a></p>
     var grid = new WebGrid(
         source: RoleRepository.GetAll(orderBy: "Name"),
@@ -39,7 +41,7 @@ else
     @grid.GetHtml(
         columns: grid.Columns(
             grid.Column(format: @<a href="~/admin/role/edit/@item.Name">Edit</a>),
-            grid.Column(format: @<a href="~/admin/role/delete/@item.Name">Delete</a>),
+            grid.Column(format: @<a data-mode="delete" data-action="/admin/role.ashx" data-item="@item.Name" href="~/admin/role/delete/@item.Name">Delete</a>),
             grid.Column("Name")
             )
     );

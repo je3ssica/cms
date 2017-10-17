@@ -41,27 +41,34 @@ public class TagHandler : IHttpHandler, IReadOnlySessionState
         var name = context.Request.Form["tagName"];
         var friendlyName = context.Request.Form["tagFriendlyName"];
         var id = context.Request.Form["tagId"];
+        var resourceItem = context.Request.Form["resourceItem"];
 
-        if(string.IsNullOrWhiteSpace(friendlyName))
+        if (mode == "delete")
         {
-            friendlyName = CreateTag(name);
+            DeleteTag(friendlyName ?? resourceItem);
         }
-        if (mode == "edit")
+        else
         {
-            EditTag(Convert.ToInt32(id), name, friendlyName);
+            if (string.IsNullOrWhiteSpace(friendlyName))
+            {
+                friendlyName = CreateTag(name);
+            }
 
+            if (mode == "edit")
+            {
+                EditTag(Convert.ToInt32(id), name, friendlyName);
+
+            }
+            else if (mode == "new")
+            {
+                CreateTag(name, friendlyName);
+            }
         }
-        else if (mode == "new")
+        if(string.IsNullOrEmpty(resourceItem))
         {
-            CreateTag(name, friendlyName);
+            context.Response.Redirect("~/admin/tag");
         }
 
-        else if (mode == "delete")
-        {
-            DeleteTag(friendlyName);
-        }
-
-        context.Response.Redirect("~/admin/tag");
     }
 
     private static void CreateTag(string name, string friendlyName)

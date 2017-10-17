@@ -27,21 +27,36 @@
     <form action="~/admin/post.ashx" method="post" name="post">
         @AntiForgery.GetHtml()
 
-        <input type="hidden" name="mode" value="@mode" />
-        <input type="hidden" name="postId" value="@post.Id" />
-        <input type="hidden" name="postAuthorId" value="@post.AuthorId" />
+        <input type="hidden" id="mode" name="mode" value="@mode" />
+        <input type="hidden" id="postId" name="postId" value="@post.Id" />
+        <input type="hidden" id="postAuthorId" name="postAuthorId" value="@post.AuthorId" />
 
 
-        <p>Title: <input type="text" name="postTitle" value="@post.Title"/></p>
-        <p>Content: <textarea name="postContent">@post.Content</textarea></p>
-        <p>Slug: <input type="text" name="postSlug" value="@post.Slug" /></p>
-        <p>Date Published: <input type="text" name="postDatePublished" value="@post.DatePublished" /></p>
-        <p><select name="postTags" multiple>
-            @foreach(var tag in tags)
-            {
-                <option value="@tag.Id" selected="@postTags.Any(t => tag.Id == tag.Id)">@tag.name</option>
-            }
-            </select></p>
+        <p>
+            <label for="postTitle">Title: </label> 
+            <input type="text" id="postTitle" name="postTitle" value="@post.Title"/>
+        </p>
+        <p>
+            <label for="postContent">Content: </label>
+            <textarea id="Content" name="postContent">@post.Content</textarea>
+        </p>
+        <p>
+            <label for="postSlug">Slug: </label>
+            <input type="text" id="postSlug" name="postSlug" value="@post.Slug" />
+        </p>
+        <p>
+            <label for="postDatePublished">Date Published: </label> 
+            <input type="text" id="postDatePublished" name="postDatePublished" value="@post.DatePublished" />
+        </p>
+        <p>
+            <label for="postTags">Tags: </label>
+            <select id="postTags" name="postTags" multiple>
+                @foreach(var tag in tags)
+                {
+                    <option value="@tag.Id" selected="@postTags.Any(t => tag.Id == tag.Id)">@tag.name</option>
+                }
+            </select>
+        </p>
 
         <p><input type="submit" name="postSubmit" value="Submit" /></p>
 
@@ -50,6 +65,9 @@
 }
 else
 {
+    @AntiForgery.GetHtml()
+
+    <a href="~/admin/post/new">Create New Post</a>
     var grid = new WebGrid(
         source: PostRepository.GetPublishedPosts(),
         rowsPerPage: 30);
@@ -58,12 +76,19 @@ else
     @grid.GetHtml(
         columns: grid.Columns(
             grid.Column(format: @<a href="~/admin/post/edit/@item.Slug">Edit</a>),
-            grid.Column(format: @<a href="~/admin/post/delete/@item.Slug">Delete</a>),
+            grid.Column(format: @<a data-mode="delete" data-action="/admin/post.ashx" data-item="@item.Slug" href="~/admin/post/delete/@item.Slug">Delete</a>),
             grid.Column("Title"),
             grid.Column("DateCreated", header: "Date Created"),
             grid.Column("DatePublished", header: "Date Published"),
-            grid.Column("AuthorId", header: "Author")
+            grid.Column("Username", header: "Author")
             )
     );
 
 }
+
+@section Scripts {
+    <script>
+        $("#postDatePublished").datepicker();
+
+    </script>
+    }

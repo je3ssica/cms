@@ -41,6 +41,7 @@ public class RoleHandler : IHttpHandler, IReadOnlySessionState
         var mode = context.Request.Form["mode"];
         var name = context.Request.Form["roleName"];
         var id = context.Request.Form["roleId"];
+        var resourceItem = context.Request.Form["resourceItem"];
 
         if (mode == "edit")
         {
@@ -54,10 +55,13 @@ public class RoleHandler : IHttpHandler, IReadOnlySessionState
 
         else if (mode == "delete")
         {
-            Delete(name);
+            Delete(name ?? resourceItem);
         }
 
-        context.Response.Redirect("~/admin/role");
+        if(string.IsNullOrEmpty(resourceItem))
+        {
+            context.Response.Redirect("~/admin/role");
+        }
     }
 
     private static void Create(string name)
